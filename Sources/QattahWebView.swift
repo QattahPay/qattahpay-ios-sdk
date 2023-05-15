@@ -5,13 +5,14 @@
 import Foundation
 import SwiftUI
 import WebKit
-//import SocketIO
+import SocketIO
 
 @available(iOS 14, *)
 public struct QattahWebView: View {
     
     @ObservedObject var qattahResponse: QattahResponse
     var qattahPaymentCallback: PaymentCallback? = nil
+    private var socket: SocketIOClient?
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
@@ -26,40 +27,46 @@ public struct QattahWebView: View {
         }
     }
     
-    func startSocketListener(onNewPaymentEvent: @escaping (_ orderId: String) -> Void) {
-//        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
-//        socket = manager.defaultSocket
-//
-//        handleSocketEvents(onNewPaymentEvent: onNewPaymentEvent)
-//        socket?.connect()
+    mutating func startSocketListener(onNewPaymentEvent: @escaping (_ orderId: String) -> Void) {
+        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
+        self.socket = manager.defaultSocket
+
+        handleSocketEvents(onNewPaymentEvent: onNewPaymentEvent)
+        self.socket?.connect()
     }
     
     func stopSocketListener() {
-//        socket?.disconnect()
+        self.socket?.disconnect()
     }
     
     // MARK: - Private methods
     private func handleSocketEvents(onNewPaymentEvent: @escaping (_ orderId: String) -> Void) {
-//        socket?.on(clientEvent: .connect) { data, ack in
-//            print("CONNECTED" + ((data[0] as AnyObject) as! String))
-//            self.qattahPaymentCallback.onStarted(paymentId: qattahResponse.data?.order?.id)
-//            socket?.emit("join-room", qattahResponse.data?.order?.id)
-//        }
-//        socket?.on("update-payment") { data, ack in
-//            print("update-payment" + ((data[0] as AnyObject) as! String))
-//            var paymentStatus = ((data[0] as AnyObject) as! String)["paymentStatus"]
-//
-//            print(paymentStatus)
-//            onNewMessage(paymentStatus)
-//        }
-//        socket?.on(clientEvent: .disconnect) { data, ack in
-//            print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
-//            self.qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
-//        }
-//        socket?.on(clientEvent: .error) { data, ack in
-//            print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
-//            self.qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
-//        }
+       
+        self.socket?.on(clientEvent: .connect) { data, ack in
+            print("CONNECTED" + ((data[0] as AnyObject) as! String))
+            self.qattahPaymentCallback?.onStarted(paymentId: (qattahResponse.data?.id)!)
+            self.socket?.emit("join-room", (qattahResponse.data?.id)!)
+        }
+        
+        self.socket?.on("update-payment") { data, ack in
+            print("update-payment" + ((data[0] as AnyObject) as! String))
+            
+            let arr = data as? [[String: Any]]
+            let paymentStatus = arr![0]["paymentStatus"] as? String
+            print(paymentStatus!)
+            onNewMessage(newMessage: paymentStatus!)
+            
+        }
+        
+        self.socket?.on(clientEvent: .disconnect) { data, ack in
+            print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
+            self.qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
+        }
+        
+        self.socket?.on(clientEvent: .error) { data, ack in
+            print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
+            self.qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
+        }
     }
     
     private func onNewMessage(newMessage: String) {

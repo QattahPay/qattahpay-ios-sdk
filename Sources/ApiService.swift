@@ -8,9 +8,11 @@
 import Combine
 import Foundation
 
+@available(macOS 10.15, *)
 @available(iOS 14, *)
 public class ApiService: ObservableObject {
     
+    @available(macOS 10.15, *)
     @available(iOS 14, *)
     func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         

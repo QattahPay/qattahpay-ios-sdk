@@ -21,8 +21,6 @@ public class QattahPaySDK: ObservableObject {
     @available(iOS 14, *)
     public func startPaymentSession(paymentRequest: PaymentRequest, onSuccess: @escaping (_: QattahResponse) -> Void, onFail: @escaping (_ errorMessage: String) -> Void) {
         
-        print("startPaymentSession")
-
         
         if (apiKey == "" || apiKey == "<YOUR_API_KEY>") {
             onFail("API KEY is required")
@@ -41,14 +39,13 @@ public class QattahPaySDK: ObservableObject {
         
         service.createNewQattahOrder(apiToken: self.apiKey, reference: "ref", callback_url: "callback_url", amount: paymentRequest.amount!) { qattahResponse in
             
-            print("createNewQattahOrder")
-            print("onComplete(qattahResponse)")
             onSuccess(qattahResponse)
-
+            
         } onError: { errorMessage in
 
             print(errorMessage)
             onFail(errorMessage)
+            
         }
     }
 }
