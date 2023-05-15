@@ -17,6 +17,7 @@ public struct QattahWebView: View {
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
+        startSocketListener()
     }
     
     public var body: some View {
@@ -27,11 +28,11 @@ public struct QattahWebView: View {
         }
     }
     
-    mutating func startSocketListener(onNewPaymentEvent: @escaping (_ orderId: String) -> Void) {
+    mutating func startSocketListener() {
         let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
         self.socket = manager.defaultSocket
 
-        handleSocketEvents(onNewPaymentEvent: onNewPaymentEvent)
+        handleSocketEvents()
         self.socket?.connect()
     }
     
@@ -40,7 +41,7 @@ public struct QattahWebView: View {
     }
     
     // MARK: - Private methods
-    private func handleSocketEvents(onNewPaymentEvent: @escaping (_ orderId: String) -> Void) {
+    private func handleSocketEvents() {
        
         self.socket?.on(clientEvent: .connect) { data, ack in
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
