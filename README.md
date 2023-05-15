@@ -37,7 +37,7 @@ import qattahpay_ios_sdk
 
 ```
 
-And then create a new QattahPaySDK object where you want as below example:
+And then create a new QattahPaySDK object where you want as in the below example:
 Note: you have to put your API key in the initiation phase.
 
 ```swift
@@ -64,7 +64,15 @@ let paymentRequest = PaymentRequestBuilder().setAmount(120).setCurrency(Currency
 })
 ```
 
-And you can handle all callbacks by creating a new class implement the protocal PaymentCallback for the Qattah Pay Callback Service by following below steps
+After starting a new payment session with Qattah Pay, you will get a new `qattahResponse` object in the `onSuccess` callback of the `startPaymentSession` function, by this object you can navigate to the `QattahWebView` which is built using SwiftUI as following:
+
+```swift
+NavigationLink(destination: QattahWebView(qattahResponse: viewModel.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback as PaymentCallback), isActive: $viewModel.navigatToQattahWebView) {
+    EmptyView()
+}
+````
+
+And you can handle all callbacks by creating a new class that implements the protocol `PaymentCallback` for the Qattah Pay Callback Service by following the below steps:
 
 ```swift
 import Foundation
