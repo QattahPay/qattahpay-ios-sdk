@@ -14,8 +14,19 @@ To include the Qattah Pay iOS SDK Library in your iOS application, follow these 
 
 1. Open your Xcode project, navigate the File tab within the macOS bar, and click on “Add Packages”.
 
+<p align="center">
+    <img src="https://random-bucket.fra1.cdn.digitaloceanspaces.com/images/Screenshot%202023-05-15%20at%207.47.09%20PM.png"
+        height="400">
+        
+</p>
+
 2. In the Add New Package window you can search for a package via the URL to the Github page (https://github.com/QattahPay/qattahpay-ios-sdk/).
 
+<p align="center">
+    <img src="https://random-bucket.fra1.cdn.digitaloceanspaces.com/images/Screenshot%202023-05-15%20at%209.07.34%20PM.png"
+        height="400">
+        
+</p>
 
 ## Usage
 
