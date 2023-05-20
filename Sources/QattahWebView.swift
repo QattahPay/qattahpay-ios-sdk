@@ -50,7 +50,7 @@ public struct CustomWebView: UIViewRepresentable {
     private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
         qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
-        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
+        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
         let socket = SocketIOClient(manager: manager, nsp: "/")
 
         socket.on(clientEvent: .connect) { data, ack in
