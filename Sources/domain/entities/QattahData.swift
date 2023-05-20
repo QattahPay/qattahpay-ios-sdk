@@ -9,6 +9,6 @@ import Foundation
 
 public struct QattahData : Decodable, Hashable {
     
-    var qattahOrder = QattahOrder()
+    var order = QattahOrder()
     
 }

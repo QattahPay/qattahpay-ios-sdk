@@ -49,13 +49,13 @@ public struct CustomWebView: UIViewRepresentable {
 
     private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
-        qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.qattahOrder.id)!)
+        qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
         let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
         let socket = SocketIOClient(manager: manager, nsp: "/")
 
         socket.on(clientEvent: .connect) { data, ack in
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
-            socket.emit("join-room", (qattahResponse.data?.qattahOrder.id)!)
+            socket.emit("join-room", (qattahResponse.data?.order.id)!)
         }
         
         socket.on("update-payment") { data, ack in
@@ -83,7 +83,7 @@ public struct CustomWebView: UIViewRepresentable {
         switch newMessage {
             
         case "PAID":
-            qattahPaymentCallback.onSuccess(paymentId: (qattahResponse.data?.qattahOrder.id)!)
+            qattahPaymentCallback.onSuccess(paymentId: (qattahResponse.data?.order.id)!)
            
         case "REFUNDED":
                 qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
