@@ -49,13 +49,17 @@ public struct CustomWebView: UIViewRepresentable {
 
     private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
-        qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
-        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
-        let socket = SocketIOClient(manager: manager, nsp: "/")
+        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa/")!, config: [.log(true), .compress])
+        let socket = manager.defaultSocket
+        
+//        qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
+//        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
+//        let socket = SocketIOClient(manager: manager, nsp: "/")
 
         socket.on(clientEvent: .connect) { data, ack in
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
             socket.emit("join-room", (qattahResponse.data?.order.id)!)
+            qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
         }
         
         socket.on("update-payment") { data, ack in
