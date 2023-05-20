@@ -7,7 +7,7 @@ import SwiftUI
 import WebKit
 import SocketIO
 
-@available(iOS 14, *)
+@available(iOS 13.0, *)
 public struct QattahWebView: View {
     
     @ObservedObject var qattahResponse: QattahResponse
@@ -85,7 +85,7 @@ public struct QattahWebView: View {
     }
 }
 
-@available(iOS 14, *)
+@available(iOS 13.0, *)
 public struct CustomWebView: UIViewRepresentable {
 
     public typealias UIViewType = WKWebView

@@ -6,7 +6,7 @@ import SwiftUI
 import WebKit
 
 
-@available(iOS 14, *)
+@available(iOS 13.0, *)
 @available(macOS 10.15, *)
 public class QattahPaySDK: ObservableObject {
 
@@ -37,7 +37,7 @@ public class QattahPaySDK: ObservableObject {
             return
         }
         
-        service.createNewQattahOrder(apiToken: self.apiKey, reference: "ref", callback_url: "callback_url", amount: paymentRequest.amount!) { qattahResponse in
+        service.createNewQattahOrder(apiToken: self.apiKey, reference: "ref", callback_url: "callback_url", amount: paymentRequest.amount!, isSandbox: paymentRequest.isSandbox ?? true) { qattahResponse in
             
             onSuccess(qattahResponse)
             

@@ -9,14 +9,15 @@ import Combine
 import Foundation
 
 @available(macOS 10.15, *)
-@available(iOS 14, *)
+@available(iOS 13.0, *)
 public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
-    @available(iOS 14, *)
-    func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+    @available(iOS 13.0, *)
+    func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, isSandbox: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
-        let postData = "{\n    \"amount\": 120.0,\n    \"callback_url\": \"https://testing-callback.qattahpay.sa\"\n}".data(using: .utf8)
+        let bodyRequest = "{\n    \"amount\": " + String(format: "%f", amount) + ",\n    \"callback_url\": \"https://testing-callback.qattahpay.sa\"\n}"
+        let postData = bodyRequest.data(using: .utf8)
 
         var request = URLRequest(url: URL(string: "https://staging-api.qattahpay.sa/api/v1/merchant-integration/orders")!, timeoutInterval: Double.infinity)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
