@@ -19,7 +19,13 @@ public class ApiService: ObservableObject {
         let bodyRequest = "{\n    \"amount\": " + String(format: "%f", amount) + ",\n    \"callback_url\": \"https://testing-callback.qattahpay.sa\"\n}"
         let postData = bodyRequest.data(using: .utf8)
 
-        var request = URLRequest(url: URL(string: "https://staging-api.qattahpay.sa/api/v1/merchant-integration/orders")!, timeoutInterval: Double.infinity)
+        var sandbox = ""
+        if (isSandbox) {
+            sandbox = "staging-"
+        }
+        
+        var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders")!,
+        timeoutInterval: Double.infinity)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("Bearer " + apiToken, forHTTPHeaderField: "Authorization")
