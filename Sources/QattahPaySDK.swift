@@ -18,7 +18,7 @@ public class QattahPaySDK: ObservableObject {
         service = ApiService()
     }
 
-    @available(iOS 14, *)
+    @available(iOS 13.0, *)
     public func startPaymentSession(paymentRequest: PaymentRequest, onSuccess: @escaping (_: QattahResponse) -> Void, onFail: @escaping (_ errorMessage: String) -> Void) {
         
         
