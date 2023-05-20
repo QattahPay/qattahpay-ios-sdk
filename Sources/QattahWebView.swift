@@ -32,8 +32,10 @@ public struct QattahWebView: View {
     }
     
     private func startSocketListener() {
-        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa/")!, config: [.log(true), .compress])
-        let socket = manager.defaultSocket
+        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
+        //let socket = manager.defaultSocket
+        
+        let socket = SocketIOClient(manager: manager, nsp: "/")
 
         handleSocketEvents(socket: socket)
         socket.connect()
