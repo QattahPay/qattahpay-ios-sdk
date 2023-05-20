@@ -21,13 +21,10 @@ public struct QattahWebView: View {
     public var body: some View {
         NavigationView {
             VStack {
-                CustomWebView(qattahResponse: self.qattahResponse).onAppear {
-                    self.startSocketListener()
-                }
-                .onDisappear {
-                    self.qattahPaymentCallback?.onCancel()
-                }
+                CustomWebView(qattahResponse: self.qattahResponse)
             }
+        }.onAppear {
+            startSocketListener()
         }
     }
     
