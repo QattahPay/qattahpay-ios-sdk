@@ -12,7 +12,7 @@ import Foundation
 public class QattahResponse : Decodable, ObservableObject {
     
     var successful: Bool?
-    var data: QattahOrder?
+    var data: QattahData?
     var links: QattahLinks?
     
 }
