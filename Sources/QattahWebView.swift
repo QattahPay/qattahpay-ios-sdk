@@ -52,14 +52,10 @@ public struct CustomWebView: UIViewRepresentable {
         let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa/")!, config: [.log(true), .compress])
         let socket = manager.defaultSocket
         
-//        qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
-//        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(true), .compress])
-//        let socket = SocketIOClient(manager: manager, nsp: "/")
-
         socket.on(clientEvent: .connect) { data, ack in
+            qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
             socket.emit("join-room", (qattahResponse.data?.order.id)!)
-            qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
         }
         
         socket.on("update-payment") { data, ack in
@@ -80,6 +76,7 @@ public struct CustomWebView: UIViewRepresentable {
             print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
+        
         socket.connect()
     }
     

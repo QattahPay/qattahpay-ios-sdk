@@ -21,7 +21,6 @@ public class QattahPaySDK: ObservableObject {
     @available(iOS 13.0, *)
     public func startPaymentSession(paymentRequest: PaymentRequest, onSuccess: @escaping (_: QattahResponse) -> Void, onFail: @escaping (_ errorMessage: String) -> Void) {
         
-        
         if (apiKey == "" || apiKey == "<YOUR_API_KEY>") {
             onFail("API KEY is required")
             return
