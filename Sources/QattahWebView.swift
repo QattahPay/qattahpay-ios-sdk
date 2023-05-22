@@ -60,7 +60,7 @@ public struct CustomWebView: UIViewRepresentable {
         }
         
         socket.on("update-payment") { data, ack in
-            print("update-payment" + ((data[0] as AnyObject) as! String))
+            print("update-payment")
             
             let arr = data as? [[String: Any]]
             let paymentStatus = arr![0]["paymentStatus"] as? String
