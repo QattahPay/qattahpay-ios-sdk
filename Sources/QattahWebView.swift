@@ -31,6 +31,8 @@ public struct QattahWebView: View {
 @available(iOS 13.0, *)
 public struct CustomWebView: UIViewRepresentable {
 
+    let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
+    
     public typealias UIViewType = WKWebView
     let webView: WKWebView
 
@@ -49,7 +51,6 @@ public struct CustomWebView: UIViewRepresentable {
 
     private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
-        let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa/")!, config: [.log(false), .compress])
         let socket = manager.defaultSocket
         
         socket.on(clientEvent: .connect) { data, ack in
