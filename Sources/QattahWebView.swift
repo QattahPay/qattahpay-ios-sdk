@@ -76,12 +76,12 @@ public struct CustomWebView: UIViewRepresentable {
         }
         
         self.socket?.on(clientEvent: .disconnect) { data, ack in
-            print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
+            print("DISCONNECTED")
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
         self.socket?.on(clientEvent: .error) { data, ack in
-            print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
+            print("CONECTION_ERROR")
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
