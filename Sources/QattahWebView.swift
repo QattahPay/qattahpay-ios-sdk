@@ -44,6 +44,8 @@ public struct CustomWebView: UIViewRepresentable {
     
     public typealias UIViewType = WKWebView
     let webView: WKWebView
+    
+    @State var publicSocket: SocketIOClient? = nil
 
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
 
@@ -88,10 +90,15 @@ public struct CustomWebView: UIViewRepresentable {
         }
         
         socket.connect()
+        self.setSocket(socket: socket)
+    }
+    
+    private func setSocket(socket: SocketIOClient) {
+        self.publicSocket = socket
     }
     
     func disconnect() {
-        manager.defaultSocket.disconnect()
+        self.publicSocket?.disconnect()
     }
     
     private func onNewMessage(newMessage: String, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
