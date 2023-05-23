@@ -27,7 +27,7 @@ public struct QattahWebView: View {
     public var body: some View {
         NavigationView {
             VStack {
-                CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!) {
+                CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!).onAppear {
                     self.startSocketListener()
                 }
             }
@@ -93,14 +93,13 @@ public struct CustomWebView: UIViewRepresentable {
     public typealias UIViewType = WKWebView
     let webView: WKWebView
     
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, onStart: @escaping () -> Void) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
 
         let requiredUrl = qattahResponse?.links?.redirect_to
         webView = WKWebView(frame: .zero)
         
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
-            onStart()
         } else {
             //TODO: navigate back
         }
