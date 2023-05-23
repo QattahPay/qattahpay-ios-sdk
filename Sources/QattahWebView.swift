@@ -18,12 +18,14 @@ public struct QattahWebView: View {
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
+        
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!)
     }
     
     public var body: some View {
         NavigationView {
             VStack {
-                CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!)
+                self.customWebView
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
