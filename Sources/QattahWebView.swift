@@ -13,6 +13,8 @@ public struct QattahWebView: View {
     @ObservedObject var qattahResponse: QattahResponse
     var qattahPaymentCallback: PaymentCallback? = nil
     
+    @Environment(\.presentationMode) var mode: Binding<PresentationMode>
+    
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
@@ -23,7 +25,13 @@ public struct QattahWebView: View {
             VStack {
                 CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!)
             }
-        }
+        }.navigationBarBackButtonHidden(true)
+            .navigationBarItems(leading: Button(action : {
+                self.mode.wrappedValue.dismiss()
+                self.qattahPaymentCallback?.onCancel()
+            }) {
+                Image(systemName: "arrow.left")
+            })
     }
     
 }
