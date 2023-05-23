@@ -41,7 +41,6 @@ public struct QattahWebView: View {
 public struct CustomWebView: UIViewRepresentable {
 
     let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
-    @State var socket: SocketIOClient? = nil
     
     public typealias UIViewType = WKWebView
     let webView: WKWebView
@@ -61,15 +60,15 @@ public struct CustomWebView: UIViewRepresentable {
 
     private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
-        self.socket = manager.defaultSocket
+        let socket = manager.defaultSocket
         
-        self.socket?.on(clientEvent: .connect) { data, ack in
+        socket.on(clientEvent: .connect) { data, ack in
             qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
-            socket?.emit("join-room", (qattahResponse.data?.order.id)!)
+            socket.emit("join-room", (qattahResponse.data?.order.id)!)
         }
         
-        self.socket?.on("update-payment") { data, ack in
+        socket.on("update-payment") { data, ack in
             print("update-payment")
             
             let arr = data as? [[String: Any]]
@@ -78,21 +77,21 @@ public struct CustomWebView: UIViewRepresentable {
             onNewMessage(newMessage: paymentStatus!, qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback)
         }
         
-        self.socket?.on(clientEvent: .disconnect) { data, ack in
+        socket.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
-        self.socket?.on(clientEvent: .error) { data, ack in
+        socket.on(clientEvent: .error) { data, ack in
             print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
-        self.socket?.connect()
+        socket.connect()
     }
     
     func disconnect() {
-        self.socket?.disconnect()
+        manager.defaultSocket.disconnect()
     }
     
     private func onNewMessage(newMessage: String, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
