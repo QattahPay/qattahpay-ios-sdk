@@ -28,7 +28,7 @@ public struct QattahWebView: View {
         NavigationView {
             VStack {
                 CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!).onAppear {
-                    self.startSocketListener(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback)
+                    self.startSocketListener(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!)
                 }
             }
         }.navigationBarBackButtonHidden(true)
@@ -41,14 +41,14 @@ public struct QattahWebView: View {
             })
     }
     
-    private func startSocketListener(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback?) {
+    private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
         self.socket = manager.defaultSocket
         
         socket?.on(clientEvent: .connect) { data, ack in
-            qattahPaymentCallback?.onStarted(paymentId: (qattahResponse?.data?.order.id)!)
+            qattahPaymentCallback.onStarted(paymentId: (qattahResponse.data?.order.id)!)
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
-            socket?.emit("join-room", (qattahResponse?.data?.order.id)!)
+            socket?.emit("join-room", (qattahResponse.data?.order.id)!)
         }
         
         socket?.on("update-payment") { data, ack in
@@ -62,25 +62,25 @@ public struct QattahWebView: View {
         
         socket?.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
-            qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
+            qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
         socket?.on(clientEvent: .error) { data, ack in
             print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
-            qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
+            qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
         socket?.connect()
     }
     
-    private func onNewMessage(newMessage: String, qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback?) {
+    private func onNewMessage(newMessage: String, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         switch newMessage {
             
         case "PAID":
-            qattahPaymentCallback?.onSuccess(paymentId: (qattahResponse?.data?.order.id)!)
+            qattahPaymentCallback.onSuccess(paymentId: (qattahResponse.data?.order.id)!)
            
         case "REFUNDED":
-                qattahPaymentCallback?.onError(errorMessage: "Qattah Pay order is expired")
+                qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
         default:
                 return
         }
