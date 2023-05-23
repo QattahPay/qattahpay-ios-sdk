@@ -15,9 +15,9 @@ public struct QattahWebView: View {
     
     @Environment(\.presentationMode) var mode: Binding<PresentationMode>
     
-    let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
+//    let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
     
-    @State var socket: SocketIOClient? = nil
+    let socket = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress]).defaultSocket
 
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
@@ -35,7 +35,7 @@ public struct QattahWebView: View {
             .navigationBarItems(leading: Button(action : {
                 self.mode.wrappedValue.dismiss()
                 self.qattahPaymentCallback?.onCancel()
-                self.socket?.disconnect()
+                self.socket.disconnect()
             }) {
                 Image(systemName: "arrow.left")
             })
@@ -43,15 +43,13 @@ public struct QattahWebView: View {
     
     private func startSocketListener() {
         
-        self.socket = manager.defaultSocket
-        
-        socket?.on(clientEvent: .connect) { data, ack in
+        socket.on(clientEvent: .connect) { data, ack in
             self.qattahPaymentCallback?.onStarted(paymentId: (qattahResponse.data?.order.id)!)
             print("CONNECTED" + ((data[0] as AnyObject) as! String))
-            socket?.emit("join-room", (qattahResponse.data?.order.id)!)
+            socket.emit("join-room", (qattahResponse.data?.order.id)!)
         }
         
-        socket?.on("update-payment") { data, ack in
+        socket.on("update-payment") { data, ack in
             print("update-payment")
             
             let arr = data as? [[String: Any]]
@@ -60,17 +58,17 @@ public struct QattahWebView: View {
             self.onNewMessage(newMessage: paymentStatus!, qattahResponse: qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback)
         }
         
-        socket?.on(clientEvent: .disconnect) { data, ack in
+        socket.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED" + ((data[0] as AnyObject) as! String))
             self.qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
-        socket?.on(clientEvent: .error) { data, ack in
+        socket.on(clientEvent: .error) { data, ack in
             print("CONECTION_ERROR" + ((data[0] as AnyObject) as! String))
             self.qattahPaymentCallback?.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
         }
         
-        socket?.connect()
+        socket.connect()
     }
     
     private func onNewMessage(newMessage: String, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback?) {
