@@ -57,6 +57,8 @@ public class PaymentRequest {
     var description: String?
     var emailAddress: String?
     var mobileNumber: String?
+    var language: Language?
+    var theme: Theme?
     var isSandbox: Bool?
     
 }

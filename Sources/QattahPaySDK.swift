@@ -36,7 +36,7 @@ public class QattahPaySDK: ObservableObject {
             return
         }
         
-        service.createNewQattahOrder(apiToken: self.apiKey, reference: "ref", callback_url: "callback_url", amount: paymentRequest.amount!, isSandbox: paymentRequest.isSandbox ?? true) { qattahResponse in
+        service.createNewQattahOrder(apiToken: self.apiKey, reference: "ref", callback_url: "callback_url", amount: paymentRequest.amount!, language: paymentRequest.language ?? Language.AR, theme: paymentRequest.theme ?? Theme.LIGHT, isSandbox: paymentRequest.isSandbox ?? true) { qattahResponse in
             
             onSuccess(qattahResponse)
             
