@@ -113,6 +113,9 @@ public struct CustomWebView: UIViewRepresentable {
             
         case "PAID":
             qattahPaymentCallback.onSuccess(paymentId: (qattahResponse.data?.order.id)!)
+            
+        case "AUTHORIZED":
+            qattahPaymentCallback.onSuccess(paymentId: (qattahResponse.data?.order.id)!)
            
         case "REFUNDED":
                 qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
