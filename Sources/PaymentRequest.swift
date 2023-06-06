@@ -39,6 +39,17 @@ public class PaymentRequestBuilder {
         paymentRequest.mobileNumber = mobileNumber
         return self
     }
+    
+    public func setLanguage(_ language: Language) -> PaymentRequestBuilder {
+        paymentRequest.language = language
+        return self
+    }
+    
+    public func setTheme(_ theme: Theme) -> PaymentRequestBuilder {
+        paymentRequest.theme = theme
+        return self
+    }
+    
     public func isSandbox(_ isSandbox: Bool) -> PaymentRequestBuilder {
         paymentRequest.isSandbox = isSandbox
         return self
