@@ -52,7 +52,7 @@ To make a payment request, you need to create a PaymentRequest object and call t
 
 ```swift
 // create a new payment request
-let paymentRequest = PaymentRequestBuilder().setAmount(120).setCurrency(Currency.SAR).setOrderId("ORDER_ID").setDescription("ORDER_DESCRIPTION").setCustomerEmail("customer@email.com").setCustomerMobileNumber("0501234567").isSandbox(true).build()
+let paymentRequest = PaymentRequestBuilder().setAmount(120).setCurrency(Currency.SAR).setOrderId("ORDER_ID").setDescription("ORDER_DESCRIPTION").setCustomerEmail("customer@email.com").setCustomerMobileNumber("0501234567").setLanguage(language).setTheme(theme).isSandbox(true).build()
 
  // start a new payment session
  qattahPay.startPaymentSession(paymentRequest: paymentRequest, onSuccess: { qattahResponse in
