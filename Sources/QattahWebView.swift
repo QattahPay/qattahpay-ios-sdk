@@ -44,6 +44,9 @@ public struct CustomWebView: UIViewRepresentable {
 
     let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
     
+    @State private var remainingMin = 0
+    @State private var remainingSec = 0
+    
     public typealias UIViewType = WKWebView
     let webView: WKWebView
     
@@ -57,11 +60,52 @@ public struct CustomWebView: UIViewRepresentable {
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
+            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
         } else {
             //TODO: navigate back
         }
     }
 
+    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback) {
+        
+        // check the order status
+        if (qattahResponse?.data?.order.activityStatus == "STARTED" // if the order is started
+            && qattahResponse?.data?.order.remainingTime?.min == 0 // and no remaining mintues
+            && qattahResponse?.data?.order.remainingTime?.sec == 0) { // and no remaining seconds
+            
+            // return that the order is expired
+            qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
+            
+        } else {
+            
+            // start the order life-timer
+            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback)
+            
+        }
+    }
+    
+    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
+        _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
+            
+            // call the server to check the order status
+            ApiService().checkOrderStatus(orderId: qattahResponse.data?.order.id, onComplete: { minitues, seconds in
+                
+                // on success - update remaining time
+                self.remainingMin = minitues
+                self.remainingSec = seconds
+                
+                // check if order is expired
+                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback)
+                
+            }, onError: {errorMessage in
+                
+                // on failed - return that the order is expired
+                qattahPaymentCallback.onError(errorMessage: errorMessage + ": Qattah Pay order is expired")
+                
+            })
+        }
+    }
+    
     private mutating func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
         self.socket = manager.defaultSocket
