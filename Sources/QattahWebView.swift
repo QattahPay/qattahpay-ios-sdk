@@ -44,7 +44,7 @@ public struct CustomWebView: UIViewRepresentable {
 
     let manager = SocketManager(socketURL: URL(string: "https://testing-callback.qattahpay.sa")!, config: [.log(false), .compress])
     
-    @State private var remainingMin = 0
+    @State private var remainingMin = 1
     @State private var remainingSec = 0
     
     public typealias UIViewType = WKWebView
