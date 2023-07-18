@@ -19,7 +19,7 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, qattahWebView: self)
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, mode: self.mode)
     }
     
     public var body: some View {
@@ -55,7 +55,7 @@ public struct CustomWebView: UIViewRepresentable {
     
     var socket: SocketIOClient? = nil
 
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
 
         let requiredUrl = qattahResponse?.links?.redirect_to
         webView = WKWebView(frame: .zero)
@@ -63,13 +63,13 @@ public struct CustomWebView: UIViewRepresentable {
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
-            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
+            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
         } else {
-            qattahWebView.goBack()
+            mode.wrappedValue.dismiss()
         }
     }
 
-    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
+    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
         
         // check the order status
         if (qattahResponse?.data?.order.activityStatus == "STARTED" // if the order is started
@@ -78,17 +78,17 @@ public struct CustomWebView: UIViewRepresentable {
             
             // return that the order is expired
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
-            qattahWebView.goBack()
+            mode.wrappedValue.dismiss()
             
         } else {
             
             // start the order life-timer
-            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
+            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
             
         }
     }
     
-    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
+    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
         _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
             
             // call the server to check the order status
@@ -99,7 +99,7 @@ public struct CustomWebView: UIViewRepresentable {
                 self.remainingSec = seconds
                 
                 // check if order is expired
-                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
+                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
                 
             }, onError: {errorMessage in
                 
