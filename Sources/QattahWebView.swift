@@ -19,7 +19,7 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, mode: self.mode)
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: self.goBack())
     }
     
     public var body: some View {
@@ -29,16 +29,20 @@ public struct QattahWebView: View {
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
-               goBack()
+                self.mode.wrappedValue.dismiss()
+                self.qattahPaymentCallback?.onCancel()
+                self.customWebView?.disconnect()
             }) {
                 Image(systemName: "arrow.left")
             })
     }
     
     func goBack() {
-        self.mode.wrappedValue.dismiss()
-        self.qattahPaymentCallback?.onCancel()
-        self.customWebView?.disconnect()
+        
+        mode.wrappedValue.dismiss()
+        qattahPaymentCallback?.onCancel()
+        customWebView?.disconnect()
+        
     }
 }
 
@@ -55,7 +59,7 @@ public struct CustomWebView: UIViewRepresentable {
     
     var socket: SocketIOClient? = nil
 
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, onDismiss: ()) {
 
         let requiredUrl = qattahResponse?.links?.redirect_to
         webView = WKWebView(frame: .zero)
@@ -63,13 +67,15 @@ public struct CustomWebView: UIViewRepresentable {
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
-            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
+            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, onDismiss: {
+                onDismiss
+            })
         } else {
-            mode.wrappedValue.dismiss()
+            onDismiss
         }
     }
 
-    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
+    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, onDismiss: @escaping () -> Void) {
         
         // check the order status
         if (qattahResponse?.data?.order.activityStatus == "STARTED" // if the order is started
@@ -78,17 +84,19 @@ public struct CustomWebView: UIViewRepresentable {
             
             // return that the order is expired
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
-            mode.wrappedValue.dismiss()
+            onDismiss()
             
         } else {
             
             // start the order life-timer
-            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
+            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, onDismiss: {
+                onDismiss()
+            })
             
         }
     }
     
-    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, mode: Binding<PresentationMode>) {
+    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, onDismiss: @escaping () -> Void) {
         _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
             
             // call the server to check the order status
@@ -99,7 +107,7 @@ public struct CustomWebView: UIViewRepresentable {
                 self.remainingSec = seconds
                 
                 // check if order is expired
-                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, mode: mode)
+                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, onDismiss: onDismiss)
                 
             }, onError: {errorMessage in
                 
