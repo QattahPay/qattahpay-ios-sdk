@@ -19,7 +19,7 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!)
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, qattahWebView: self)
     }
     
     public var body: some View {
@@ -29,14 +29,17 @@ public struct QattahWebView: View {
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
-                self.mode.wrappedValue.dismiss()
-                self.qattahPaymentCallback?.onCancel()
-                self.customWebView?.disconnect()
+               goBack()
             }) {
                 Image(systemName: "arrow.left")
             })
     }
     
+    func goBack() {
+        self.mode.wrappedValue.dismiss()
+        self.qattahPaymentCallback?.onCancel()
+        self.customWebView?.disconnect()
+    }
 }
 
 @available(iOS 13.0, *)
@@ -52,7 +55,7 @@ public struct CustomWebView: UIViewRepresentable {
     
     var socket: SocketIOClient? = nil
 
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
 
         let requiredUrl = qattahResponse?.links?.redirect_to
         webView = WKWebView(frame: .zero)
@@ -60,13 +63,13 @@ public struct CustomWebView: UIViewRepresentable {
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
-            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
+            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
         } else {
-            //TODO: navigate back
+            qattahWebView.goBack()
         }
     }
 
-    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback) {
+    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
         
         // check the order status
         if (qattahResponse?.data?.order.activityStatus == "STARTED" // if the order is started
@@ -75,16 +78,17 @@ public struct CustomWebView: UIViewRepresentable {
             
             // return that the order is expired
             qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
+            qattahWebView.goBack()
             
         } else {
             
             // start the order life-timer
-            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback)
+            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
             
         }
     }
     
-    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
+    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
         _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
             
             // call the server to check the order status
@@ -95,7 +99,7 @@ public struct CustomWebView: UIViewRepresentable {
                 self.remainingSec = seconds
                 
                 // check if order is expired
-                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback)
+                self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, qattahWebView: qattahWebView)
                 
             }, onError: {errorMessage in
                 
