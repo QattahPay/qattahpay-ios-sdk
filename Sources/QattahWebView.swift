@@ -19,7 +19,13 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: self.goBack())
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: {
+            
+            self.mode.wrappedValue.dismiss()
+            self.qattahPaymentCallback?.onCancel()
+            self.customWebView?.disconnect()
+            
+        }())
     }
     
     public var body: some View {
@@ -35,14 +41,6 @@ public struct QattahWebView: View {
             }) {
                 Image(systemName: "arrow.left")
             })
-    }
-    
-    func goBack() {
-        
-        mode.wrappedValue.dismiss()
-        qattahPaymentCallback?.onCancel()
-        customWebView?.disconnect()
-        
     }
 }
 
