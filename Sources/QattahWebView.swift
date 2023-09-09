@@ -35,9 +35,9 @@ public struct QattahWebView: View {
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
-                self.mode.wrappedValue.dismiss()
                 self.qattahPaymentCallback?.onCancel()
                 self.customWebView?.disconnect()
+                self.mode.wrappedValue.dismiss()
             }) {
                 Image(systemName: "arrow.left")
             })
