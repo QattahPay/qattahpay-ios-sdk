@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>qattahpay-ios-sdk-Package.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 		<key>qattahpay-ios-sdk.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
