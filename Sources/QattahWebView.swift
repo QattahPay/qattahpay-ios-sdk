@@ -10,13 +10,13 @@ import SocketIO
 @available(iOS 13.0, *)
 public struct QattahWebView: View {
     
-    //@Environment(\.presentationMode) var mode: Binding<PresentationMode>
+    @Environment(\.presentationMode) var mode: Binding<PresentationMode>
     @ObservedObject var qattahResponse: QattahResponse
     var qattahPaymentCallback: PaymentCallback? = nil
     var customWebView: CustomWebView? = nil
     var presentationmode: Binding<PresentationMode>? = nil
     
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, presentationMode: Binding<PresentationMode>) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
@@ -43,7 +43,7 @@ public struct QattahWebView: View {
     private func onBackPressed() {
         self.qattahPaymentCallback?.onCancel()
         self.customWebView?.disconnect()
-        self.presentationmode?.wrappedValue.dismiss()
+        self.mode.wrappedValue.dismiss()
     }
 }
 
