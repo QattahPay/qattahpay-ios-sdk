@@ -10,20 +10,19 @@ import SocketIO
 @available(iOS 13.0, *)
 public struct QattahWebView: View {
     
-    @Environment(\.presentationMode) var mode: Binding<PresentationMode>
+    //@Environment(\.presentationMode) var mode: Binding<PresentationMode>
     @ObservedObject var qattahResponse: QattahResponse
     var qattahPaymentCallback: PaymentCallback? = nil
     var customWebView: CustomWebView? = nil
+    var presentationmode: Binding<PresentationMode>? = nil
     
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, presentationMode: Binding<PresentationMode>) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
         self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: {
             
-            self.mode.wrappedValue.dismiss()
-            self.qattahPaymentCallback?.onCancel()
-            self.customWebView?.disconnect()
+            self.onBackPressed()
             
         }())
     }
@@ -35,12 +34,16 @@ public struct QattahWebView: View {
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
-                self.qattahPaymentCallback?.onCancel()
-                self.customWebView?.disconnect()
-                self.mode.wrappedValue.dismiss()
+                self.onBackPressed()
             }) {
                 Image(systemName: "arrow.left")
             })
+    }
+    
+    private func onBackPressed() {
+        self.qattahPaymentCallback?.onCancel()
+        self.customWebView?.disconnect()
+        self.presentationmode?.wrappedValue.dismiss()
     }
 }
 
