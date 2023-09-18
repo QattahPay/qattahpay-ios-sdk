@@ -50,12 +50,11 @@ public struct CustomWebView: UIViewRepresentable {
     
     @State private var remainingMin = 15
     @State private var remainingSec = 0
-    @State var isUserCancelled = false
     
     public typealias UIViewType = WKWebView
     let webView: WKWebView
     
-    @State var socket: SocketIOClient? = nil
+    var socket: SocketIOClient? = nil
 
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
 
@@ -118,24 +117,22 @@ public struct CustomWebView: UIViewRepresentable {
         }
     }
     
-    private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
+    private mutating func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
         self.socket = manager.defaultSocket
-//        let selfItem = self
+        let selfItem = self
         
         self.socket?.on(clientEvent: .connect) { data, ack in
-            self.connectionHandling(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
+            selfItem.connectionHandling(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
         }
         
         self.socket?.on("update-payment") { data, ack in
-            self.updatePayment(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
+            selfItem.updatePayment(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
         }
         
         self.socket?.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED")
-            if (!self.isUserCancelled) {
-                qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
-            }
+            qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket disconnected.")
         }
         
         self.socket?.on(clientEvent: .error) { data, ack in
@@ -163,7 +160,7 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     func disconnect() {
-        self.isUserCancelled = true
+        isUserCancelled = true
         self.socket?.disconnect()
     }
     
