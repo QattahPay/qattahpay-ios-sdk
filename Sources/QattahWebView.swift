@@ -20,11 +20,7 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: {
-            
-            self.onBackPressed()
-            
-        }())
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: self.onBackPressed())
     }
     
     public var body: some View {
