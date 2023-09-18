@@ -55,7 +55,7 @@ public struct CustomWebView: UIViewRepresentable {
     public typealias UIViewType = WKWebView
     let webView: WKWebView
     
-    var socket: SocketIOClient? = nil
+    @State var socket: SocketIOClient? = nil
 
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
 
@@ -118,22 +118,22 @@ public struct CustomWebView: UIViewRepresentable {
         }
     }
     
-    private mutating func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
+    private func startSocketListener(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         
         self.socket = manager.defaultSocket
-        let selfItem = self
+//        let selfItem = self
         
         self.socket?.on(clientEvent: .connect) { data, ack in
-            selfItem.connectionHandling(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
+            self.connectionHandling(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
         }
         
         self.socket?.on("update-payment") { data, ack in
-            selfItem.updatePayment(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
+            self.updatePayment(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, data: data)
         }
         
         self.socket?.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED")
-            if (!selfItem.isUserCancelled) {
+            if (!self.isUserCancelled) {
                 qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
             }
         }
