@@ -160,7 +160,6 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     func disconnect() {
-        isUserCancelled = true
         self.socket?.disconnect()
     }
     
