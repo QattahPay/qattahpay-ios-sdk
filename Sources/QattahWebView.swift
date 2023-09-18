@@ -133,9 +133,9 @@ public struct CustomWebView: UIViewRepresentable {
         
         self.socket?.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED")
-            if (!selfItem.isUserCancelled) {
+            //if (!selfItem.isUserCancelled) {
                 qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
-            }
+            //}
         }
         
         self.socket?.on(clientEvent: .error) { data, ack in
