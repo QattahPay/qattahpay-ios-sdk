@@ -50,7 +50,7 @@ public struct CustomWebView: UIViewRepresentable {
     
     @State private var remainingMin = 15
     @State private var remainingSec = 0
-    @State private var isUserCancelled = false
+    @State var isUserCancelled = false
     
     public typealias UIViewType = WKWebView
     let webView: WKWebView
@@ -133,9 +133,9 @@ public struct CustomWebView: UIViewRepresentable {
         
         self.socket?.on(clientEvent: .disconnect) { data, ack in
             print("DISCONNECTED")
-            //if (!selfItem.isUserCancelled) {
+            if (!selfItem.isUserCancelled) {
                 qattahPaymentCallback.onError(errorMessage: "Qattah Pay socket connection lost, please check internet connection.")
-            //}
+            }
         }
         
         self.socket?.on(clientEvent: .error) { data, ack in
@@ -163,7 +163,7 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     func disconnect() {
-        isUserCancelled = true
+        self.isUserCancelled = true
         self.socket?.disconnect()
     }
     
