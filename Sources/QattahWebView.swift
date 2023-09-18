@@ -20,7 +20,7 @@ public struct QattahWebView: View {
         self.qattahResponse = qattahResponse ?? QattahResponse()
         self.qattahPaymentCallback = qattahPaymentCallback
         
-        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, onDismiss: self.onBackPressed())
+        self.customWebView = CustomWebView(qattahResponse: self.qattahResponse, qattahPaymentCallback: self.qattahPaymentCallback!, qattahWebView: self)
     }
     
     public var body: some View {
@@ -36,7 +36,7 @@ public struct QattahWebView: View {
             })
     }
     
-    private func onBackPressed() {
+    func onBackPressed() {
         self.qattahPaymentCallback?.onCancel()
         self.customWebView?.disconnect()
         self.mode.wrappedValue.dismiss()
@@ -56,7 +56,7 @@ public struct CustomWebView: UIViewRepresentable {
     
     var socket: SocketIOClient? = nil
 
-    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, onDismiss: ()) {
+    public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback, qattahWebView: QattahWebView) {
 
         let requiredUrl = qattahResponse?.links?.redirect_to
         webView = WKWebView(frame: .zero)
@@ -65,10 +65,10 @@ public struct CustomWebView: UIViewRepresentable {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
             checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, onDismiss: {
-                onDismiss
+                qattahWebView.onBackPressed()
             })
         } else {
-            onDismiss
+            qattahWebView.onBackPressed()
         }
     }
 
