@@ -20,8 +20,10 @@ public class ApiService: ObservableObject {
     func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, language: Language, theme: Theme, isSandbox: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
         self.apiKey = apiToken
+        let version = "1.5.6"
         
-        let bodyRequest = "{\n    \"amount\": " + String(format: "%f", amount) + ",\n    \"reference\": \"" + reference + "\",\n    \"callback_url\": \"https://testing-callback.qattahpay.sa\",\n    \"theme\":\"" + theme.description + "\",\n    \"lang\":\"" + language.description + "\"\n}"
+        let bodyRequest = "{ \"amount\": " + String(format: "%f", amount) + ", \"reference\": \"" + reference + "\", \"callback_url\": \"https://testing-callback.qattahpay.sa\", \"theme\": \"" + theme.description + "\", \"lang\": \"" + language.description + "\", \"platform\": \"iOS\", \"version\": \"" + version + "\"}"
+        
         let postData = bodyRequest.data(using: .utf8)
 
         var sandbox = ""
