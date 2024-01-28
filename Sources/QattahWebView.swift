@@ -27,7 +27,14 @@ public struct QattahWebView: View {
         NavigationView {
             VStack {
                 self.customWebView.onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    print("User received on  didBecomeActiveNotification!")
+                    
+                    var id = qattahResponse.data?.order.id
+                    if (id == nil || self.qattahPaymentCallback == nil) {
+                        return
+                    }
+                    
+                    self.customWebView?.refreshSession(orderId: id!, qattahPaymentCallback: self.qattahPaymentCallback!)
+
                 }
             }
         }.navigationBarBackButtonHidden(true)
@@ -102,11 +109,11 @@ public struct CustomWebView: UIViewRepresentable {
         _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
             
             // call the server to check the order status
-            ApiService().checkOrderStatus(orderId: qattahResponse.data?.order.id, onComplete: { minitues, seconds in
+            ApiService().checkOrderStatus(orderId: qattahResponse.data?.order.id, onComplete: { qattahOrderResponse in
                 
                 // on success - update remaining time
-                self.remainingMin = minitues
-                self.remainingSec = seconds
+                self.remainingMin = qattahOrderResponse.data?.order.remainingTime?.min ?? 0
+                self.remainingSec = qattahOrderResponse.data?.order.remainingTime?.sec ?? 0
                 
                 // check if order is expired
                 self.checkExpiration(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, onDismiss: onDismiss)
@@ -166,7 +173,22 @@ public struct CustomWebView: UIViewRepresentable {
         self.socket?.disconnect()
     }
     
-    private func onNewMessage(newMessage: String, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
+    func refreshSession(orderId: String, qattahPaymentCallback: PaymentCallback) {
+        // call the server to check the order status
+        ApiService().checkOrderStatus(orderId: orderId, onComplete: { qattahOrderResponse in
+            
+            // on success - handle the flow regarding the payment activity
+            onNewMessage(newMessage: qattahOrderResponse.data?.order.paymentStatus, qattahResponse: qattahOrderResponse, qattahPaymentCallback: qattahPaymentCallback)
+            
+        }, onError: {errorMessage in
+            
+            // on failed - return that the order is expired
+            qattahPaymentCallback.onError(errorMessage: errorMessage + ": Qattah Pay order is expired")
+            
+        })
+    }
+    
+    private func onNewMessage(newMessage: String?, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
         switch newMessage {
             
         case "PAID":

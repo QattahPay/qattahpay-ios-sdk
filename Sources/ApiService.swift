@@ -62,7 +62,7 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func checkOrderStatus(orderId: String?, onComplete: @escaping (_: Int, _: Int) -> Void, onError: @escaping (_: String) -> Void) {
+    func checkOrderStatus(orderId: String?, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
         if (orderId == nil) {
             onError("no order id found")
@@ -90,10 +90,7 @@ public class ApiService: ObservableObject {
                             do {
                                 let newOrderResponse = try JSONDecoder().decode(QattahResponse.self, from: data)
                                
-                                let minitues = newOrderResponse.data?.order.remainingTime?.min
-                                let seconds = newOrderResponse.data?.order.remainingTime?.sec
-                                
-                                onComplete(minitues ?? 0, seconds ?? 0)
+                                onComplete(newOrderResponse)
                                 
                             } catch {
                                 print("Unable to Decode Response \(error)")
