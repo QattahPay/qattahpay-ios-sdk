@@ -26,7 +26,9 @@ public struct QattahWebView: View {
     public var body: some View {
         NavigationView {
             VStack {
-                self.customWebView
+                self.customWebView.onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    print("User received on  didBecomeActiveNotification!")
+                }
             }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action : {
@@ -72,6 +74,7 @@ public struct CustomWebView: UIViewRepresentable {
             self.disconnect()
         }
     }
+
 
     private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, onDismiss: @escaping () -> Void) {
         
