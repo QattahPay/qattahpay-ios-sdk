@@ -14,5 +14,6 @@ public class QattahResponse : Decodable, ObservableObject {
     var data: QattahData?
     var links: QattahLinks?
     var apiKey: String?
+    var isSandbox: Bool? = false
     
 }

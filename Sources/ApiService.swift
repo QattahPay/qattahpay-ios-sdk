@@ -12,8 +12,6 @@ import Foundation
 @available(iOS 13.0, *)
 public class ApiService: ObservableObject {
     
-    private var isSandbox = false
-    
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
     func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, language: Language, theme: Theme, isSandbox: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
@@ -26,7 +24,6 @@ public class ApiService: ObservableObject {
 
         var sandbox = ""
         if (isSandbox) {
-            self.isSandbox = true
             sandbox = "testing-"
         }
         
@@ -60,7 +57,7 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func checkOrderStatus(apiKey: String?, orderId: String, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+    func checkOrderStatus(apiKey: String?, orderId: String, isSandbox: Bool?, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
         if (apiKey == nil) {
             print("checkOrderStatus: API KEY is nil")
@@ -68,8 +65,7 @@ public class ApiService: ObservableObject {
         }
         
         var sandbox = ""
-        if (isSandbox) {
-            self.isSandbox = true
+        if (isSandbox == true) {
             sandbox = "testing-"
         }
         
