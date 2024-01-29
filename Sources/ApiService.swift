@@ -78,7 +78,7 @@ public class ApiService: ObservableObject {
         URLSession.shared.dataTask(with: request) { data, response, error in
                     DispatchQueue.main.async {
                         if error != nil || (response as! HTTPURLResponse).statusCode != 200 {
-                            onError("Error occured")
+                            onError("Error occured:" + (error?.localizedDescription ?? ""))
                         } else if let data = data {
                             do {
                                 let newOrderResponse = try JSONDecoder().decode(QattahResponse.self, from: data)
