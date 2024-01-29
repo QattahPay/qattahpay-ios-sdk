@@ -33,7 +33,7 @@ public struct QattahWebView: View {
                         return
                     }
                     
-                    self.customWebView?.refreshSession(orderId: self.qattahResponse.data?.order.id ?? "", qattahPaymentCallback: self.qattahPaymentCallback!)
+                    self.customWebView?.refreshSession(apiKey: self.qattahResponse.apiKey, orderId: self.qattahResponse.data?.order.id ?? "", qattahPaymentCallback: self.qattahPaymentCallback!)
 
                 }
             }
@@ -125,12 +125,12 @@ public struct CustomWebView: UIViewRepresentable {
         self.socket?.disconnect()
     }
     
-    func refreshSession(orderId: String, qattahPaymentCallback: PaymentCallback) {
+    func refreshSession(apiKey: String?, orderId: String, qattahPaymentCallback: PaymentCallback) {
         
         print("refreshSession")
         
         // call the server to check the order status
-        ApiService().checkOrderStatus(orderId: orderId, onComplete: { newOrderResponse in
+        ApiService().checkOrderStatus(apiKey: apiKey, orderId: orderId, onComplete: { newOrderResponse in
             
             print("checkOrderStatus: success")
             

@@ -62,7 +62,12 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func checkOrderStatus(orderId: String, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+    func checkOrderStatus(apiKey: String?, orderId: String, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+        
+        if (apiKey == nil) {
+            print("checkOrderStatus: API KEY is nil")
+            return
+        }
         
         var sandbox = ""
         if (isSandbox) {
