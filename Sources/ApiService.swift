@@ -12,14 +12,12 @@ import Foundation
 @available(iOS 13.0, *)
 public class ApiService: ObservableObject {
     
-    private var apiKey = ""
     private var isSandbox = false
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
     func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, language: Language, theme: Theme, isSandbox: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
-        self.apiKey = apiToken
         let version = "1.5.6"
         
         let bodyRequest = "{ \"amount\": " + String(format: "%f", amount) + ", \"reference\": \"" + reference + "\", \"callback_url\": \"https://testing-callback.qattahpay.sa\", \"theme\": \"" + theme.description + "\", \"lang\": \"" + language.description + "\", \"platform\": \"iOS\", \"version\": \"" + version + "\"}"
@@ -77,10 +75,10 @@ public class ApiService: ObservableObject {
         
         var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders/" + orderId)!,timeoutInterval: Double.infinity)
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Bearer " + self.apiKey, forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer " + (apiKey ?? ""), forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
 
-        print("API.KEY: " + self.apiKey)
+        print("API.KEY: " + (apiKey ?? ""))
         
         URLSession.shared.dataTask(with: request) { data, response, error in
                     DispatchQueue.main.async {
