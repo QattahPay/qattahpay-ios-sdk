@@ -62,24 +62,17 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func checkOrderStatus(orderId: String?, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
-        
-        if (orderId == nil) {
-            onError("no order id found")
-            return
-        }
+    func checkOrderStatus(orderId: String, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
         var sandbox = ""
-        if (self.isSandbox) {
+        if (isSandbox) {
+            self.isSandbox = true
             sandbox = "testing-"
         }
         
-        var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders/" + orderId!)!,
-        timeoutInterval: Double.infinity)
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders/" + orderId)!,timeoutInterval: Double.infinity)
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("Bearer " + self.apiKey, forHTTPHeaderField: "Authorization")
-
         request.httpMethod = "GET"
 
         URLSession.shared.dataTask(with: request) { data, response, error in

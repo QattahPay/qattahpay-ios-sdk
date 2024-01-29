@@ -73,57 +73,9 @@ public struct CustomWebView: UIViewRepresentable {
         if (requiredUrl != nil) {
             webView.load(URLRequest(url: URL(string: requiredUrl!)!))
             startSocketListener(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback)
-            checkExpiration(qattahResponse: qattahResponse!, qattahPaymentCallback: qattahPaymentCallback, onDismiss: {
-                qattahWebView.onBackPressed()
-            })
         } else {
             qattahWebView.onBackPressed()
             self.disconnect()
-        }
-    }
-
-
-    private func checkExpiration(qattahResponse: QattahResponse!, qattahPaymentCallback: PaymentCallback, onDismiss: @escaping () -> Void) {
-        
-        // check the order status
-        if (qattahResponse?.data?.order.activityStatus == "STARTED" // if the order is started
-            && qattahResponse?.data?.order.remainingTime?.min == 0 // and no remaining mintues
-            && qattahResponse?.data?.order.remainingTime?.sec == 0) { // and no remaining seconds
-            
-            // return that the order is expired
-            qattahPaymentCallback.onError(errorMessage: "Qattah Pay order is expired")
-            onDismiss()
-            self.disconnect()
-            
-        } else {
-            
-            // start the order life-timer
-            startExpirationTimer(qattahResponse: qattahResponse, qattahPaymentCallback: qattahPaymentCallback, onDismiss: {
-                onDismiss()
-            })
-            
-        }
-    }
-    
-    private func startExpirationTimer(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, onDismiss: @escaping () -> Void) {
-        _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(((remainingMin * 60) + remainingSec)), repeats: false) {[self] _ in
-            
-            // call the server to check the order status
-            ApiService().checkOrderStatus(orderId: qattahResponse.data?.order.id, onComplete: { newOrderResponse in
-                
-                // on success - update remaining time
-                self.remainingMin = newOrderResponse.data?.order.remainingTime?.min ?? 0
-                self.remainingSec = newOrderResponse.data?.order.remainingTime?.sec ?? 0
-                
-                // check if order is expired
-                self.checkExpiration(qattahResponse: newOrderResponse, qattahPaymentCallback: qattahPaymentCallback, onDismiss: onDismiss)
-                
-            }, onError: {errorMessage in
-                
-                // on failed - return that the order is expired
-                qattahPaymentCallback.onError(errorMessage: errorMessage + ": Qattah Pay order is expired")
-                
-            })
         }
     }
     
