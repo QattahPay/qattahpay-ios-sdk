@@ -29,7 +29,7 @@ public class ApiService: ObservableObject {
         var sandbox = ""
         if (isSandbox) {
             self.isSandbox = true
-            sandbox = "staging-"
+            sandbox = "testing-"
         }
         
         var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders")!,
