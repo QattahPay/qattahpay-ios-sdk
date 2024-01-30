@@ -55,6 +55,11 @@ public class PaymentRequestBuilder {
         return self
     }
     
+    public func isTesting(_ isTesting: Bool) -> PaymentRequestBuilder {
+        paymentRequest.isTesting = isTesting
+        return self
+    }
+    
     public func build() -> PaymentRequest {
         return self.paymentRequest
     }
