@@ -71,5 +71,6 @@ public class PaymentRequest {
     var language: Language?
     var theme: Theme?
     var isSandbox: Bool?
+    var isTesting: Bool?
     
 }

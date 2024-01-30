@@ -14,17 +14,15 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, amount: Double, language: Language, theme: Theme, isSandbox: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+    func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, paymentRequest: PaymentRequest, isSandbox: Bool, isTesting: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
-        let version = "1.5.6"
-        
-        let bodyRequest = "{ \"amount\": " + String(format: "%f", amount) + ", \"reference\": \"" + reference + "\", \"callback_url\": \"https://testing-callback.qattahpay.sa\", \"theme\": \"" + theme.description + "\", \"lang\": \"" + language.description + "\", \"platform\": \"iOS\", \"version\": \"" + version + "\"}"
-        
-        let postData = bodyRequest.data(using: .utf8)
+        let postData = createJSONString(amount: String(format: "%f", paymentRequest.amount ?? 0), reference: reference, callbackURL: callback_url, theme: paymentRequest.theme?.description, lang: paymentRequest.language?.description, currency: paymentRequest.currency?.description, description: paymentRequest.description, emailAddress: paymentRequest.emailAddress, mobileNumber: paymentRequest.mobileNumber).data(using: .utf8)
 
         var sandbox = ""
-        if (isSandbox) {
+        if (isTesting) {
             sandbox = "testing-"
+        } else if (isSandbox) {
+            sandbox = "staging-"
         }
         
         var request = URLRequest(url: URL(string: "https://" + sandbox + "api.qattahpay.sa/api/v1/merchant-integration/orders")!,
@@ -54,13 +52,32 @@ public class ApiService: ObservableObject {
                 .resume()
     }
     
+    func createJSONString(amount: String?, reference: String?, callbackURL: String?, theme: String?, lang: String?, currency: String?, description: String?, emailAddress: String?, mobileNumber: String?) -> String {
+        let version = "1.6.0"
+        let jsonString = """
+        {
+            "amount": \(amount ?? ""),
+            "reference": "\(reference ?? "")",
+            "callback_url": "\(callbackURL ?? "")",
+            "theme": "\(theme ?? "")",
+            "lang": "\(lang ?? "")",
+            "currency": "\(currency ?? "")",
+            "description": "\(description ?? "")",
+            "emailAddress": "\(emailAddress ?? "")",
+            "mobileNumber": "\(mobileNumber ?? "")",
+            "platform": "iOS",
+            "version": "\(version)"
+        }
+        """
+        return jsonString
+    }
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
     func checkOrderStatus(apiKey: String?, orderId: String, isSandbox: Bool?, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
         if (apiKey == nil) {
-            print("checkOrderStatus: API KEY is nil")
+            print("API KEY is nil")
             return
         }
         
@@ -73,12 +90,9 @@ public class ApiService: ObservableObject {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("Bearer " + (apiKey ?? ""), forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
-
-        print("API.KEY: " + (apiKey ?? ""))
         
         URLSession.shared.dataTask(with: request) { data, response, error in
                     DispatchQueue.main.async {
-                        print("(response as! HTTPURLResponse).statusCode: " + String((response as! HTTPURLResponse).statusCode))
                         if error != nil || (response as! HTTPURLResponse).statusCode != 200 {
                             onError("Error occured:" + (error?.localizedDescription ?? ""))
                         } else if let data = data {

@@ -32,4 +32,10 @@ public enum Currency {
 //    case THB,
 //    case TRY,
 //    case ZAR
+    
+    public var description : String {
+       switch self {
+       case .SAR: return "SAR"
+       }
+     }
 }

@@ -28,7 +28,6 @@ public struct QattahWebView: View {
             VStack {
                 self.customWebView.onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     
-                    print("orderId: " + (self.qattahResponse.data?.order.id ?? "000"))
                     if (self.qattahResponse.data?.order.id == nil || self.qattahPaymentCallback == nil) {
                         return
                     }
@@ -113,8 +112,6 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     private func updatePayment(qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback, data: [Any]) {
-        print("update-payment")
-        
         let arr = data as? [[String: Any]]
         let paymentStatus = arr![0]["paymentStatus"] as? String
         print(paymentStatus!)
@@ -126,8 +123,6 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     func refreshSession(apiKey: String?, orderId: String, isSandbox: Bool?, qattahPaymentCallback: PaymentCallback) {
-        
-        print("refreshSession")
         
         // call the server to check the order status
         ApiService().checkOrderStatus(apiKey: apiKey, orderId: orderId, isSandbox: isSandbox, onComplete: { newOrderResponse in
@@ -148,8 +143,6 @@ public struct CustomWebView: UIViewRepresentable {
     }
     
     private func onNewMessage(newMessage: String?, qattahResponse: QattahResponse, qattahPaymentCallback: PaymentCallback) {
-        print("onNewMessage: newMessage: " + (newMessage ?? ""))
-        
         switch newMessage {
             
         case "PAID":
