@@ -53,7 +53,7 @@ public class ApiService: ObservableObject {
     }
     
     func createJSONString(amount: String?, reference: String?, theme: String?, lang: String?, currency: String?, description: String?, emailAddress: String?, mobileNumber: String?) -> String {
-        let version = "1.6.0"
+        let version = "1.6.3"
         let jsonString = """
         {
             "amount": \(amount ?? ""),
