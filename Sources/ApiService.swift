@@ -14,9 +14,9 @@ public class ApiService: ObservableObject {
     
     @available(macOS 10.15, *)
     @available(iOS 13.0, *)
-    func createNewQattahOrder(apiToken: String, reference: String, callback_url: String, paymentRequest: PaymentRequest, isSandbox: Bool, isTesting: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
+    func createNewQattahOrder(apiToken: String, reference: String, paymentRequest: PaymentRequest, isSandbox: Bool, isTesting: Bool, onComplete: @escaping (_: QattahResponse) -> Void, onError: @escaping (_: String) -> Void) {
         
-        let postData = createJSONString(amount: String(format: "%f", paymentRequest.amount ?? 0), reference: reference, callbackURL: callback_url, theme: paymentRequest.theme?.description, lang: paymentRequest.language?.description, currency: paymentRequest.currency?.description, description: paymentRequest.description, emailAddress: paymentRequest.emailAddress, mobileNumber: paymentRequest.mobileNumber).data(using: .utf8)
+        let postData = createJSONString(amount: String(format: "%f", paymentRequest.amount ?? 0), reference: reference, theme: paymentRequest.theme?.description, lang: paymentRequest.language?.description, currency: paymentRequest.currency?.description, description: paymentRequest.description, emailAddress: paymentRequest.emailAddress, mobileNumber: paymentRequest.mobileNumber).data(using: .utf8)
 
         var sandbox = ""
         if (isTesting) {
@@ -52,13 +52,13 @@ public class ApiService: ObservableObject {
                 .resume()
     }
     
-    func createJSONString(amount: String?, reference: String?, callbackURL: String?, theme: String?, lang: String?, currency: String?, description: String?, emailAddress: String?, mobileNumber: String?) -> String {
+    func createJSONString(amount: String?, reference: String?, theme: String?, lang: String?, currency: String?, description: String?, emailAddress: String?, mobileNumber: String?) -> String {
         let version = "1.6.0"
         let jsonString = """
         {
             "amount": \(amount ?? ""),
             "reference": "\(reference ?? "")",
-            "callback_url": "\(callbackURL ?? "")",
+            "callback_url": "https://testing-callback.qattahpay.sa",
             "theme": "\(theme ?? "")",
             "lang": "\(lang ?? "")",
             "currency": "\(currency ?? "")",
