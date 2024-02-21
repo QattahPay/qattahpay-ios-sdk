@@ -11,10 +11,10 @@ import SocketIO
 public struct QattahWebView: View {
     
     @Environment(\.presentationMode) var mode: Binding<PresentationMode>
-    @ObservedObject var qattahResponse: QattahResponse
-    var qattahPaymentCallback: PaymentCallback? = nil
-    var customWebView: CustomWebView? = nil
-    var presentationmode: Binding<PresentationMode>? = nil
+    @ObservedObject private var qattahResponse: QattahResponse
+    @State private var qattahPaymentCallback: PaymentCallback? = nil
+    @State private var customWebView: CustomWebView? = nil
+    @State private var presentationmode: Binding<PresentationMode>? = nil
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse ?? QattahResponse()
