@@ -1,11 +1,9 @@
 //
-//  File.swift
-//  
+//  RemainingTime.swift
+//  qattahpay-ios-sdk
 //
 //  Created by khlafawi on 17/07/2023.
 //
-
-import Foundation
 
 import Foundation
 

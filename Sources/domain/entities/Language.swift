@@ -1,21 +1,15 @@
 //
-//  File.swift
-//  
+//  Language.swift
+//  qattahpay-ios-sdk
 //
 //  Created by khlafawi on 06/06/2023.
 //
 
 import Foundation
 
-public enum Language: CustomStringConvertible {
+public enum Language: String, Codable {
     
-    case EN
-    case AR
+    case EN = "en"
+    case AR = "ar"
     
-    public var description : String {
-       switch self {
-       case .EN: return "en"
-       case .AR: return "ar"
-       }
-     }
 }

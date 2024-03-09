@@ -1,21 +1,15 @@
 //
-//  File.swift
-//  
+//  Theme.swift
+//  qattahpay-ios-sdk
 //
 //  Created by khlafawi on 06/06/2023.
 //
 
 import Foundation
 
-public enum Theme: CustomStringConvertible {
+public enum Theme: String, Codable {
     
-    case DARK
-    case LIGHT
+    case DARK = "dark"
+    case LIGHT = "light"
     
-    public var description : String {
-       switch self {
-       case .DARK: return "dark"
-       case .LIGHT: return "light"
-       }
-     }
 }
