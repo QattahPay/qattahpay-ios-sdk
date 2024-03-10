@@ -21,6 +21,7 @@ public final class QattahPaySDK: ObservableObject {
     public init() {}
     
     public init(apiKey: String) {
+        QattahPaySDK.shared = self
         self.apiKey = apiKey
     }
     
@@ -118,7 +119,7 @@ public struct QattahWebView: View {
             self.onResult(result: v)
         })
         .onAppear() {
-            if let s = self.qattahResponse {
+            if let s = QattahPaySDK.shared.qattahResponse {
                 viewModel.response = s
             }
         }
