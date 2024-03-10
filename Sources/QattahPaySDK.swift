@@ -23,10 +23,6 @@ public final class QattahPaySDK: ObservableObject {
     public init(apiKey: String) {
         self.apiKey = apiKey
     }
-
-    public func setup(apiKey: String) {
-        self.apiKey = apiKey
-    }
     
     @available(iOS 13.0, *)
     public func startPaymentSession(paymentRequest: PaymentRequest, onSuccess: @escaping (_: QattahResponse) -> Void, onFail: @escaping (_ errorMessage: String) -> Void) {
@@ -81,8 +77,10 @@ public struct QattahWebView: View {
     @StateObject var viewModel = QattahWebViewModel()
     
     private var qattahPaymentCallback: PaymentCallback? = nil
+    private var qattahResponse: QattahResponse? = nil
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
+        self.qattahResponse = qattahResponse
         self.qattahPaymentCallback = qattahPaymentCallback
     }
     
@@ -120,7 +118,7 @@ public struct QattahWebView: View {
             self.onResult(result: v)
         })
         .onAppear() {
-            if let s = QattahPaySDK.shared.qattahResponse {
+            if let s = self.qattahResponse {
                 viewModel.response = s
             }
         }
