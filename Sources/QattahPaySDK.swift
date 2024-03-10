@@ -79,6 +79,7 @@ public struct QattahWebView: View {
     
     private var qattahPaymentCallback: PaymentCallback? = nil
     private var qattahResponse: QattahResponse? = nil
+    @State private var showAlert = false
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse
@@ -108,6 +109,9 @@ public struct QattahWebView: View {
                     url: self.viewModel.response?.links?.redirect_to,
                     viewModel: self.viewModel
                 )
+                .onDisappear(perform: {
+                    showAlert = true
+                })
             } else {
                 ActivityIndicator(style: .medium)
             }
@@ -122,6 +126,9 @@ public struct QattahWebView: View {
             if let s = QattahPaySDK.shared.qattahResponse {
                 viewModel.response = s
             }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Alert"))
         }
     }
 }
