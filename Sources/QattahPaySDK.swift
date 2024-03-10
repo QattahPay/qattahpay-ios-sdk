@@ -109,9 +109,6 @@ public struct QattahWebView: View {
                     url: self.viewModel.response?.links?.redirect_to,
                     viewModel: self.viewModel
                 )
-                .onDisappear(perform: {
-                    showAlert = true
-                })
             } else {
                 ActivityIndicator(style: .medium)
             }
@@ -129,6 +126,10 @@ public struct QattahWebView: View {
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Alert"))
+        }
+        .onDisappear(){
+            print("Fired on Disappear as expected")
+            showAlert = true
         }
     }
 }
