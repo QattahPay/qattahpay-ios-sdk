@@ -79,10 +79,12 @@ public struct QattahWebView: View {
     
     private var qattahPaymentCallback: PaymentCallback? = nil
     private var qattahResponse: QattahResponse? = nil
+    @State private var showAlert = false
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse
         self.qattahPaymentCallback = qattahPaymentCallback
+        //self.viewControllers?.first.isModalInPresentation = true
     }
     
     private func onResult(result: QattahResult) {
@@ -123,5 +125,13 @@ public struct QattahWebView: View {
                 viewModel.response = s
             }
         }
+        .onDisappear() {
+            showAlert = true
+        }
+        .alert(isPresented: $showAlert, content: {
+            Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
+                // Dismiss the view after confirmation
+            }), secondaryButton: .default(Text("Cancel")))
+        })
     }
 }
