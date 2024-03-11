@@ -140,7 +140,6 @@ public struct QattahWebView: View {
             HStack {
                 if (viewModel.response != nil) {
                     CustomWebView(
-                        url: self.viewModel.response?.links?.redirect_to,
                         viewModel: self.viewModel
                     )
                 } else {
@@ -158,6 +157,28 @@ public struct QattahWebView: View {
                     viewModel.response = s
                 }
             }
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        //dragOffset = gesture.translation
+                        let isDraggingDown = gesture.translation.height > 0
+
+                        if isDraggingDown {
+                          // Show confirmation alert
+                          let alert = UIAlertController(title: "Dismiss View", message: "Are you sure you want to dismiss the web view?", preferredStyle: .alert)
+                          alert.addAction(UIAlertAction(title: "Dismiss", style: .destructive, handler: { _ in
+                            // User confirms dismissal, remove gesture recognizer and allow dismissal
+                            //recognizer.view?.removeGestureRecognizer(recognizer)
+                          }))
+                          alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                          UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true)
+                        }
+                    }
+                    .onEnded { gesture in
+                       // dragOffset = .zero
+                    }
+            )
+        
 //            .onDisappear() {
 //                showAlert = true
 //            }
@@ -166,5 +187,25 @@ public struct QattahWebView: View {
 //                    // Dismiss the view after confirmation
 //                }), secondaryButton: .default(Text("Cancel")))
 //            })
+    }
+}
+
+class CustomWebViewDelegate: NSObject {
+    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
+        guard recognizer.state == .ended else { return }
+
+        let translation = recognizer.translation(in: recognizer.view)
+        let isDraggingDown = translation.y > 0
+
+        if isDraggingDown {
+          // Show confirmation alert
+          let alert = UIAlertController(title: "Dismiss View", message: "Are you sure you want to dismiss the web view?", preferredStyle: .alert)
+          alert.addAction(UIAlertAction(title: "Dismiss", style: .destructive, handler: { _ in
+            // User confirms dismissal, remove gesture recognizer and allow dismissal
+            recognizer.view?.removeGestureRecognizer(recognizer)
+          }))
+          alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+          UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true)
+        }
     }
 }
