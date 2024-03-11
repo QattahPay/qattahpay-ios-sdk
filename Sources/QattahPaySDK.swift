@@ -77,48 +77,16 @@ public final class QattahPaySDK: ObservableObject {
 public struct QattahWebView: View {
     @StateObject var viewModel = QattahWebViewModel()
     
+    @Environment(\.presentationMode) private var presentationMode
+    
     private var qattahPaymentCallback: PaymentCallback? = nil
     private var qattahResponse: QattahResponse? = nil
-    //@State private var showAlert = false
+    @State private var showAlert = false
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse
         self.qattahPaymentCallback = qattahPaymentCallback
     }
-    
-//    func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) {
-//        // The system calls this delegate method whenever the user attempts to pull
-//        // down to dismiss and `isModalInPresentation` is false.
-//        // Clarify the user's intent by asking whether they want to cancel or save.
-//        confirmCancel(showingSave: true)
-//    }
-//    
-//    // MARK: - Cancellation Confirmation
-//    func confirmCancel(showingSave: Bool) {
-//        
-//        self.showAlert = true
-//        // Present a UIAlertController as an action sheet to have the user confirm losing any
-//        // recent changes.
-////        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-////        
-////        // Only ask if the user wants to save if they attempt to pull to dismiss, not if they tap Cancel.
-////        if showingSave {
-////            alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
-////                self.delegate?.editViewControllerDidFinish(self)
-////            })
-////        }
-////        
-////        alert.addAction(UIAlertAction(title: "Discard Changes", style: .destructive) { _ in
-////            self.delegate?.editViewControllerDidCancel(self)
-////        })
-////        
-////        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-////        
-////        // If presenting the alert controller as a popover, point the popover at the Cancel button.
-////        alert.popoverPresentationController?.barButtonItem = cancelButton
-////        
-////        present(alert, animated: true, completion: nil)
-//    }
     
     private func onResult(result: QattahResult) {
         switch result {
@@ -137,75 +105,43 @@ public struct QattahWebView: View {
     }
     
     public var body: some View {
-            HStack {
-                if (viewModel.response != nil) {
-                    CustomWebView(
-                        viewModel: self.viewModel
-                    )
-                } else {
-                    ActivityIndicator(style: .medium)
-                }
+        HStack {
+            if (viewModel.response != nil) {
+                CustomWebView(
+                    viewModel: self.viewModel
+                )
+            } else {
+                ActivityIndicator(style: .medium)
             }
-            .valueChanged(value: viewModel.result, onChange: { val in
-                guard let v = val else {
-                    return
-                }
-                self.onResult(result: v)
-            })
-            .onAppear() {
-                if let s = QattahPaySDK.shared.qattahResponse {
-                    viewModel.response = s
-                }
-            }
-            .gesture(
-                DragGesture()
-                    .onChanged { gesture in
-                        //dragOffset = gesture.translation
-                        let isDraggingDown = gesture.translation.height > 0
-
-                        if isDraggingDown {
-                          // Show confirmation alert
-                          let alert = UIAlertController(title: "Dismiss View", message: "Are you sure you want to dismiss the web view?", preferredStyle: .alert)
-                          alert.addAction(UIAlertAction(title: "Dismiss", style: .destructive, handler: { _ in
-                            // User confirms dismissal, remove gesture recognizer and allow dismissal
-                            //recognizer.view?.removeGestureRecognizer(recognizer)
-                          }))
-                          alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                          UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true)
-                        }
-                    }
-                    .onEnded { gesture in
-                       // dragOffset = .zero
-                    }
-            )
-        
-//            .onDisappear() {
-//                showAlert = true
-//            }
-//            .alert(isPresented: $showAlert, content: {
-//                Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
-//                    // Dismiss the view after confirmation
-//                }), secondaryButton: .default(Text("Cancel")))
-//            })
-    }
-}
-
-class CustomWebViewDelegate: NSObject {
-    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
-        guard recognizer.state == .ended else { return }
-
-        let translation = recognizer.translation(in: recognizer.view)
-        let isDraggingDown = translation.y > 0
-
-        if isDraggingDown {
-          // Show confirmation alert
-          let alert = UIAlertController(title: "Dismiss View", message: "Are you sure you want to dismiss the web view?", preferredStyle: .alert)
-          alert.addAction(UIAlertAction(title: "Dismiss", style: .destructive, handler: { _ in
-            // User confirms dismissal, remove gesture recognizer and allow dismissal
-            recognizer.view?.removeGestureRecognizer(recognizer)
-          }))
-          alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-          UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true)
         }
+        .valueChanged(value: viewModel.result, onChange: { val in
+            guard let v = val else {
+                return
+            }
+            self.onResult(result: v)
+        })
+        .onAppear() {
+            if let s = QattahPaySDK.shared.qattahResponse {
+                viewModel.response = s
+            }
+        }
+        .onDisappear() {
+              // No longer needed as dismissal is handled within the sheet
+        }
+        .alert(isPresented: $showAlert, content: {
+            Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
+                // Dismiss the view after confirmation
+                presentationMode.wrappedValue.dismiss()
+            }), secondaryButton: .default(Text("Cancel")))
+        })
+        .background(
+              GeometryReader { _ in
+                EmptyView()
+                  .onDisappear {
+                    // User tried to dismiss by tapping outside the sheet area
+                    showAlert = true
+                  }
+              }
+            )
     }
 }
