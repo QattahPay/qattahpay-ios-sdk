@@ -87,10 +87,10 @@ public final class QattahPaySDK: ObservableObject {
 public struct QattahWebView: View {
     @StateObject var viewModel = QattahWebViewModel()
     
-//    @Environment(\.presentationMode) private var presentationMode: Binding<PresentationMode>
+    @Environment(\.presentationMode) private var presentationMode: Binding<PresentationMode>
     private var qattahPaymentCallback: PaymentCallback? = nil
     private var qattahResponse: QattahResponse? = nil
-//    @State private var showAlert = false
+    @State private var showAlert = false
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse
@@ -114,7 +114,7 @@ public struct QattahWebView: View {
     }
     
     public var body: some View {
-//        NavigationView {
+        NavigationView {
             HStack {
                 if (viewModel.response != nil) {
                     CustomWebView(
@@ -145,14 +145,19 @@ public struct QattahWebView: View {
 //            .onDisappear() {
 //                // No longer needed as dismissal is handled within the sheet
 //            }
-//            .alert(isPresented: $showAlert, content: {
-//                Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
-//                    // Dismiss the view after confirmation
-//                    self.presentationMode.wrappedValue.dismiss()
-//                }), secondaryButton: .default(Text("Cancel")))
-//            })
-//        }
-//        .navigationBarBackButtonHidden(true)
+            .alert(isPresented: $showAlert, content: {
+                Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
+                    // Dismiss the view after confirmation
+                    self.presentationMode.wrappedValue.dismiss()
+                }), secondaryButton: .default(Text("Cancel")))
+            })
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action : {
+            self.showAlert = true
+        }) {
+            Image(systemName: "arrow.left")
+        })
     }
 }
 
