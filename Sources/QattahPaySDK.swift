@@ -45,19 +45,29 @@ public final class QattahPaySDK: ObservableObject {
         
         let qattahRequest = paymentRequest.mapToQattahRequest()
         
-        Api.shared.createNewOrder(payload: qattahRequest, apiKey: self.apiKey, env: self.getEnvironment(paymentRequest: paymentRequest), completed: { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let qattahResponse):
-                    self.qattahResponse = qattahResponse
-                    onSuccess(qattahResponse)
-                case .failure(let error):
-                    let errorMessage = error.localizedDescription
-                    print(errorMessage)
-                    onFail(errorMessage)
+//        if (self.qattahResponse != nil) {
+//            let alert = Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
+//                // Dismiss the view after confirmation
+//                self.presentationMode.wrappedValue.dismiss()
+//            }), secondaryButton: .default(Text("Cancel")))
+//            
+//            self.present(alert)
+//            
+//        } else {
+            Api.shared.createNewOrder(payload: qattahRequest, apiKey: self.apiKey, env: self.getEnvironment(paymentRequest: paymentRequest), completed: { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let qattahResponse):
+                        self.qattahResponse = qattahResponse
+                        onSuccess(qattahResponse)
+                    case .failure(let error):
+                        let errorMessage = error.localizedDescription
+                        print(errorMessage)
+                        onFail(errorMessage)
+                    }
                 }
-            }
-        })
+            })
+//        }
     }
     
     func getEnvironment(paymentRequest: PaymentRequest) -> Env {
@@ -77,11 +87,10 @@ public final class QattahPaySDK: ObservableObject {
 public struct QattahWebView: View {
     @StateObject var viewModel = QattahWebViewModel()
     
-    @Environment(\.presentationMode) private var presentationMode
-    
+//    @Environment(\.presentationMode) private var presentationMode: Binding<PresentationMode>
     private var qattahPaymentCallback: PaymentCallback? = nil
     private var qattahResponse: QattahResponse? = nil
-    @State private var showAlert = false
+//    @State private var showAlert = false
     
     public init(qattahResponse: QattahResponse?, qattahPaymentCallback: PaymentCallback) {
         self.qattahResponse = qattahResponse
@@ -105,43 +114,56 @@ public struct QattahWebView: View {
     }
     
     public var body: some View {
-        HStack {
-            if (viewModel.response != nil) {
-                CustomWebView(
-                    viewModel: self.viewModel
-                )
-            } else {
-                ActivityIndicator(style: .medium)
+//        NavigationView {
+            HStack {
+                if (viewModel.response != nil) {
+                    CustomWebView(
+                        viewModel: self.viewModel
+                    )
+                } else {
+                    ActivityIndicator(style: .medium)
+                }
             }
-        }
-        .valueChanged(value: viewModel.result, onChange: { val in
-            guard let v = val else {
-                return
+            .valueChanged(value: viewModel.result, onChange: { val in
+                guard let v = val else {
+                    return
+                }
+                self.onResult(result: v)
+            })
+//            .valueChanged(value: self.presentationMode, onChange: { val in
+//                if val.wrappedValue.isDismissed {
+//                    // User tried to dismiss the sheet
+//                    self.showAlert = true
+//                    self.presentationMode.wrappedValue.dismiss() // Prevent actual dismissal
+//                }
+//            })
+            .onAppear() {
+                if let s = QattahPaySDK.shared.qattahResponse {
+                    viewModel.response = s
+                }
             }
-            self.onResult(result: v)
-        })
-        .onAppear() {
-            if let s = QattahPaySDK.shared.qattahResponse {
-                viewModel.response = s
-            }
-        }
-        .onDisappear() {
-              // No longer needed as dismissal is handled within the sheet
-        }
-        .alert(isPresented: $showAlert, content: {
-            Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
-                // Dismiss the view after confirmation
-                presentationMode.wrappedValue.dismiss()
-            }), secondaryButton: .default(Text("Cancel")))
-        })
-        .background(
-              GeometryReader { _ in
-                EmptyView()
-                  .onDisappear {
-                    // User tried to dismiss by tapping outside the sheet area
-                    showAlert = true
-                  }
-              }
-            )
+//            .onDisappear() {
+//                // No longer needed as dismissal is handled within the sheet
+//            }
+//            .alert(isPresented: $showAlert, content: {
+//                Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
+//                    // Dismiss the view after confirmation
+//                    self.presentationMode.wrappedValue.dismiss()
+//                }), secondaryButton: .default(Text("Cancel")))
+//            })
+//        }
+//        .navigationBarBackButtonHidden(true)
     }
 }
+
+//@available(iOS 13.0, *)
+//class PresentationModeManager: ObservableObject {
+//  @Environment(\.presentationMode) var presentationMode
+//
+//  // This method is called whenever the environment changes,
+//  // including changes to presentationMode
+//  override func willChangeValue(_ key: String) {
+//    super.willChangeValue(key)
+//    objectWillChange.send() // Notify when presentationMode changes
+//  }
+//}
