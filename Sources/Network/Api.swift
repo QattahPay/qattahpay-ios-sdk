@@ -71,7 +71,7 @@ final class Api {
     
     func cancelCurrentOrder(qattahOrderId: String, apiKey: String, env: Env, completed: @escaping (Result<QattahResponse, ApiError>) -> Void) {
         
-        let cancelOrderUrl = self.getNewOrderUrl(env: env) + "/" + qattahOrderId + "/cancel"
+        let cancelOrderUrl = self.getCancelOrderUrl(env: env, orderId: qattahOrderId)
         
         guard let url = URL(string: cancelOrderUrl) else {
             completed(.failure(.invalidUrl))
@@ -113,6 +113,21 @@ final class Api {
         let createOrderUrlProd = "https://api.qattahpay.sa/api/v1/merchant-integration/orders"
         let createOrderUrlStage = "https://staging-api.qattahpay.sa/api/v1/merchant-integration/orders"
         let createOrderUrlTest = "https://testing-api.qattahpay.sa/api/v1/merchant-integration/orders"
+        
+        switch (env) {
+        case .prod:
+            return createOrderUrlProd
+        case .staging:
+            return createOrderUrlStage
+        case .testing:
+            return createOrderUrlTest
+        }
+    }
+    
+    private func getCancelOrderUrl(env: Env, orderId: String) -> String {
+        let createOrderUrlProd = "https://api.qattahpay.sa/api/v1/qattah/orders/\(orderId)/cancel"
+        let createOrderUrlStage = "https://staging-api.qattahpay.sa/api/v1/qattah/orders\(orderId)/cancel"
+        let createOrderUrlTest = "https://testing-api.qattahpay.sa/api/v1/qattah/orders\(orderId)/cancel"
         
         switch (env) {
         case .prod:
