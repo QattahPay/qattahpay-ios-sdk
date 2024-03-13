@@ -15,6 +15,8 @@ public final class QattahPaySDK: ObservableObject {
     
     fileprivate var apiKey: String = ""
     fileprivate var qattahResponse: QattahResponse?
+    fileprivate var environment: Env = .prod
+    fileprivate var currentQattahOrderId: String?
     
     public static var shared = QattahPaySDK()
     
@@ -44,6 +46,7 @@ public final class QattahPaySDK: ObservableObject {
         }
         
         let qattahRequest = paymentRequest.mapToQattahRequest()
+        self.setEnvironment(paymentRequest: paymentRequest)
         
 //        if (self.qattahResponse != nil) {
 //            let alert = Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
@@ -54,11 +57,12 @@ public final class QattahPaySDK: ObservableObject {
 //            self.present(alert)
 //            
 //        } else {
-            Api.shared.createNewOrder(payload: qattahRequest, apiKey: self.apiKey, env: self.getEnvironment(paymentRequest: paymentRequest), completed: { result in
+            Api.shared.createNewOrder(payload: qattahRequest, apiKey: self.apiKey, env: self.environment, completed: { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let qattahResponse):
                         self.qattahResponse = qattahResponse
+                        self.currentQattahOrderId = qattahResponse.data?.order.id
                         onSuccess(qattahResponse)
                     case .failure(let error):
                         let errorMessage = error.localizedDescription
@@ -70,16 +74,40 @@ public final class QattahPaySDK: ObservableObject {
 //        }
     }
     
-    func getEnvironment(paymentRequest: PaymentRequest) -> Env {
+    @available(iOS 13.0, *)
+    public func cancelPaymentSession(onSuccess: @escaping (_: QattahResponse) -> Void, onFail: @escaping (_ errorMessage: String) -> Void) {
+        
+        if (self.currentQattahOrderId == nil) {
+            onFail("there is no Qattah Order started to cancel")
+            return
+        }
+        
+        Api.shared.cancelCurrentOrder(qattahOrderId: self.currentQattahOrderId!, apiKey: self.apiKey, env: self.environment, completed: { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let qattahResponse):
+                    self.qattahResponse = qattahResponse
+                    onSuccess(qattahResponse)
+                case .failure(let error):
+                    let errorMessage = error.localizedDescription
+                    print(errorMessage)
+                    onFail(errorMessage)
+                }
+            }
+        })
+    }
+    
+    func setEnvironment(paymentRequest: PaymentRequest) {
         if (paymentRequest.isSandbox ?? false) {
-            return .staging
+            self.environment = .staging
+            return
         }
         
         if (paymentRequest.isTesting ?? false) {
-            return .testing
+            self.environment = .testing
         }
         
-        return .prod
+        self.environment = .prod
     }
 }
 
@@ -147,8 +175,13 @@ public struct QattahWebView: View {
 //            }
             .alert(isPresented: $showAlert, content: {
                 Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
-                    // Dismiss the view after confirmation
-                    self.presentationMode.wrappedValue.dismiss()
+                    QattahPaySDK.shared.cancelPaymentSession(onSuccess: {_ in 
+                        // Dismiss the view after confirmation
+                        self.presentationMode.wrappedValue.dismiss()
+                    }, onFail: {errorMessage in
+                        self.qattahPaymentCallback?.onError(errorMessage: errorMessage)
+                        self.presentationMode.wrappedValue.dismiss()
+                    })
                 }), secondaryButton: .default(Text("Cancel")))
             })
         }

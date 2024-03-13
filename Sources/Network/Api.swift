@@ -69,7 +69,47 @@ final class Api {
         task.resume()
     }
     
-    func getNewOrderUrl(env: Env) -> String {
+    func cancelCurrentOrder(qattahOrderId: String, apiKey: String, env: Env, completed: @escaping (Result<QattahResponse, ApiError>) -> Void) {
+        
+        let cancelOrderUrl = self.getNewOrderUrl(env: env) + "/" + qattahOrderId + "/cancel"
+        
+        guard let url = URL(string: cancelOrderUrl) else {
+            completed(.failure(.invalidUrl))
+            return
+        }
+        var request = URLRequest(url: url)
+        
+        request.httpMethod = "POST"
+        
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
+            if let _ = error {
+                completed(.failure(.unableToComplete))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.noResponse))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let decodedResponse = try decoder.decode(QattahResponse.self, from: data)
+                completed(.success(decodedResponse))
+            } catch {
+                completed(.failure(.unableToDecode))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    private func getNewOrderUrl(env: Env) -> String {
         let createOrderUrlProd = "https://api.qattahpay.sa/api/v1/merchant-integration/orders"
         let createOrderUrlStage = "https://staging-api.qattahpay.sa/api/v1/merchant-integration/orders"
         let createOrderUrlTest = "https://testing-api.qattahpay.sa/api/v1/merchant-integration/orders"
