@@ -105,6 +105,7 @@ public final class QattahPaySDK: ObservableObject {
         
         if (paymentRequest.isTesting ?? false) {
             self.environment = .testing
+            return
         }
         
         self.environment = .prod
