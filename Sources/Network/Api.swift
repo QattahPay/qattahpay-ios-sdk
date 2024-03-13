@@ -126,8 +126,8 @@ final class Api {
     
     private func getCancelOrderUrl(env: Env, orderId: String) -> String {
         let createOrderUrlProd = "https://api.qattahpay.sa/api/v1/qattah/orders/\(orderId)/cancel"
-        let createOrderUrlStage = "https://staging-api.qattahpay.sa/api/v1/qattah/orders\(orderId)/cancel"
-        let createOrderUrlTest = "https://testing-api.qattahpay.sa/api/v1/qattah/orders\(orderId)/cancel"
+        let createOrderUrlStage = "https://staging-api.qattahpay.sa/api/v1/qattah/orders/\(orderId)/cancel"
+        let createOrderUrlTest = "https://testing-api.qattahpay.sa/api/v1/qattah/orders/\(orderId)/cancel"
         
         switch (env) {
         case .prod:
