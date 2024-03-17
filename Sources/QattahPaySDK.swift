@@ -16,6 +16,7 @@ public final class QattahPaySDK: ObservableObject {
     fileprivate var apiKey: String = ""
     fileprivate var qattahResponse: QattahResponse?
     fileprivate var environment: Env = .prod
+    fileprivate var languge: Language = .EN
     fileprivate var currentQattahOrderId: String?
     
     public static var shared = QattahPaySDK()
@@ -47,6 +48,7 @@ public final class QattahPaySDK: ObservableObject {
         
         let qattahRequest = paymentRequest.mapToQattahRequest()
         self.setEnvironment(paymentRequest: paymentRequest)
+        self.languge = paymentRequest.language ?? .EN
         
 //        if (self.qattahResponse != nil) {
 //            let alert = Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
@@ -175,15 +177,15 @@ public struct QattahWebView: View {
 //                // No longer needed as dismissal is handled within the sheet
 //            }
             .alert(isPresented: $showAlert, content: {
-                Alert(title: Text("Close Qattah Pay"), message: Text("Are you sure you want to close Qattah Pay? This might cancel your ongoing payment."), primaryButton: .destructive(Text("Close"), action: {
-                    QattahPaySDK.shared.cancelPaymentSession(onSuccess: {_ in 
+                Alert(title: Text(self.getLocalizedStringForKey("alertTitle")), message: Text(self.getLocalizedStringForKey("alertContent")), primaryButton: .destructive(Text(self.getLocalizedStringForKey("alertPrimaryButton")), action: {
+                    QattahPaySDK.shared.cancelPaymentSession(onSuccess: {_ in
                         // Dismiss the view after confirmation
                         self.presentationMode.wrappedValue.dismiss()
                     }, onFail: {errorMessage in
                         self.qattahPaymentCallback?.onError(errorMessage: errorMessage)
                         self.presentationMode.wrappedValue.dismiss()
                     })
-                }), secondaryButton: .default(Text("Cancel")))
+                }), secondaryButton: .default(Text(self.getLocalizedStringForKey("alertSecondaryButton"))))
             })
         }
         .navigationBarBackButtonHidden(true)
@@ -194,6 +196,28 @@ public struct QattahWebView: View {
         })
     }
 }
+
+@available(iOS 14.0, *)
+extension QattahWebView {
+    func getLocalizedStringForKey(_ key: String) -> String {
+        return localizedMessages[QattahPaySDK.shared.languge.rawValue]?[key] ?? ""
+    }
+}
+
+fileprivate var localizedMessages: [String: [String: String]] = [
+    "ar": [
+        "alertTitle": "الفاء الطلب",
+        "alertContent": "هل أنت متأكد أنك تريد إغلاق الطلب؟ قد يؤدي هذا إلى إلغاء دفعتك المستمرة.",
+        "alertPrimaryButton": "اغلاق الطلب",
+        "alertSecondaryButton": "الفاء",
+    ],
+    "en": [
+        "alertTitle": "Cancel Qattah Order",
+        "alertContent": "Are you sure you want to close Qattah Pay? This might cancel your ongoing payment.",
+        "alertPrimaryButton": "Close",
+        "alertSecondaryButton": "Cancel",
+    ]
+]
 
 //@available(iOS 13.0, *)
 //class PresentationModeManager: ObservableObject {
