@@ -206,10 +206,10 @@ extension QattahWebView {
 
 fileprivate var localizedMessages: [String: [String: String]] = [
     "ar": [
-        "alertTitle": "الفاء الطلب",
-        "alertContent": "هل أنت متأكد أنك تريد إغلاق الطلب؟ قد يؤدي هذا إلى إلغاء دفعتك المستمرة.",
-        "alertPrimaryButton": "اغلاق الطلب",
-        "alertSecondaryButton": "الفاء",
+        "alertTitle": "الغاء الطلب",
+        "alertContent": "هل أنت متأكد أنك تريد إغلاق الطلب؟ قد يؤدي هذا إلى إلغاء عملية الدفع",
+        "alertPrimaryButton": "الغاء الطلب",
+        "alertSecondaryButton": "اغلاق"
     ],
     "en": [
         "alertTitle": "Cancel Qattah Order",
