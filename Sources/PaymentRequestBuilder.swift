@@ -1,5 +1,5 @@
 //
-//  PaymentRequest.swift
+//  PaymentRequestBuilder.swift
 //  qattahpay-ios-sdk
 //
 //  Created by khlafawi on 14/04/2023.
@@ -77,5 +77,9 @@ public class PaymentRequest {
     var theme: Theme?
     var isSandbox: Bool?
     var isTesting: Bool?
+    
+    func mapToQattahRequest() -> QattahRequest {
+        return QattahRequest(amount: self.amount ?? 0.0, reference: self.orderId, theme: self.theme, lang: self.language, currency: self.currency, description: self.description, emailAddress: self.emailAddress, mobileNumber: self.mobileNumber)
+    }
     
 }

@@ -18,8 +18,8 @@ public struct QattahOrder : Decodable, Hashable {
     var isExpired: Bool?
     var isTimedOut: Bool?
     var remainingTime: RemainingTime?
-    var activityStatus: String?
-    var paymentStatus: String?
+    var activityStatus: ActivityStatus?
+    var paymentStatus: PaymentStatus?
     var callbackUrl: String?
     
 }

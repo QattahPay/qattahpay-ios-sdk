@@ -7,10 +7,8 @@ let package = Package(
     products: [
         .library(name: "qattahpay-ios-sdk", targets: ["qattahpay-ios-sdk"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/socketio/socket.io-client-swift", .upToNextMinor(from: "16.1.0"))
-    ],
+    dependencies: [],
     targets: [
-        .target(name: "qattahpay-ios-sdk", dependencies: ["SocketIO"], path: "Sources")
+        .target(name: "qattahpay-ios-sdk", dependencies: [], path: "Sources")
     ]
 )
