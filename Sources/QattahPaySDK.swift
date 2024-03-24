@@ -206,16 +206,16 @@ extension QattahWebView {
 
 fileprivate var localizedMessages: [String: [String: String]] = [
     "ar": [
-        "alertTitle": "الغاء الطلب",
-        "alertContent": "هل أنت متأكد أنك تريد إغلاق الطلب؟ قد يؤدي هذا إلى إلغاء عملية الدفع",
-        "alertPrimaryButton": "الغاء الطلب",
-        "alertSecondaryButton": "اغلاق"
+        "alertTitle": "إلغاء القطة",
+        "alertContent": "هل انت متأكد من إغلاق القطة؟ سيتم إلغاء عملية الدفع و إسترجاع القطات المدفوعة.",
+        "alertPrimaryButton": "إلغاء القطة",
+        "alertSecondaryButton": "رجوع"
     ],
     "en": [
         "alertTitle": "Cancel Qattah Order",
-        "alertContent": "Are you sure you want to close Qattah Pay? This might cancel your ongoing payment.",
-        "alertPrimaryButton": "Close",
-        "alertSecondaryButton": "Cancel",
+        "alertContent": "Are you sure to close the order? The payment process will be cancelled and the paid orders will be refunded.",
+        "alertPrimaryButton": "Cancel order",
+        "alertSecondaryButton": "Go back",
     ]
 ]
 
